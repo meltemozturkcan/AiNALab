@@ -1,0 +1,47 @@
+############################
+# Core Web API (Production)
+############################
+
+# Web Framework
+fastapi~=0.104.0          # 0.104.x serisindeki bugfix'leri otomatik al
+uvicorn[standard]~=0.24.0
+python-multipart~=0.0.6   # file upload (audio blob) için
+
+# Database (MongoDB)
+pymongo~=4.6.0
+motor~=3.3.0              # Async MongoDB driver
+
+# Data Validation & Settings
+pydantic~=2.5.0
+pydantic-settings~=2.1.0  # config via env vars
+
+############################
+# Auth / Security
+############################
+
+# JWT & crypto
+python-jose[cryptography]~=3.3.0
+passlib[bcrypt]~=1.7.4
+cryptography~=41.0.7
+
+# Env & secrets
+python-dotenv~=1.0.0
+
+############################
+# Azure Cloud Integration
+############################
+
+azure-storage-blob~=12.19.0
+# Eğer Managed Identity / AAD kullanacaksan kalsın, yoksa şimdilik çıkarabilirsin:
+azure-identity~=1.14.0
+
+############################
+# Logging / Utilities
+############################
+
+python-json-logger~=2.0.7
+python-dateutil~=2.8.2
+
+# HTTP client (hem prod hem test için   gerekli olabilir)
+httpx~=0.25.0
+

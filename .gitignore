@@ -1,0 +1,11 @@
+
+__pycache__/
+.venv/
+.env
+*.log
+recordings/
+data/
+uploads/
+.vscode/
+.idea/
+
