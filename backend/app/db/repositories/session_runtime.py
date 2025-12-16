@@ -11,16 +11,7 @@ def _utcnow() -> datetime:
 
 
 class SessionRuntimeRepository:
-    """
-    DB repository for session_runtime.
-
-    Notes:
-    - TTL must exist ONLY on session_runtime.expires_at (expireAfterSeconds=0).
-    - Never store PII (IP, UA, device identifiers, etc.).
-    """
-
     def __init__(self, db: Any):
-        self._db = db
         self._runtime = db["session_runtime"]
         self._sessions = db["sessions"]
         self._default_ttl_seconds = int(os.getenv("SESSION_RUNTIME_TTL_SECONDS", "3600"))
@@ -53,4 +44,3 @@ class SessionRuntimeRepository:
         await self._runtime.insert_one(doc)
         doc.pop("_id", None)
         return doc
-

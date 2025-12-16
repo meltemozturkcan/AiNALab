@@ -1,42 +1,43 @@
 """
-Session request/response schemas (privacy-first).
+Session runtime schemas (temporary, TTL-enabled).
 
-- birth_date is accepted ONLY to compute age metrics.
-- birth_date is NEVER stored in DB.
+- runtime_token is a temporary capability token (UUID).
+- progress is NOT research data; it only supports resume UX.
+- TTL is enforced at DB level via expires_at index (expireAfterSeconds=0).
 """
 
-from datetime import date, datetime
-from typing import Literal
+from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, Field, ConfigDict
 
 
-Gender = Literal["male", "female", "unspecified"]
-
-
-class SessionCreateRequest(BaseModel):
+class SessionRuntimeProgress(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    birth_date: date = Field(
-        ...,
-        description="Used only for age calculation. Never stored.",
-        examples=["2021-08-15"],
-    )
-
-    gender: Gender = Field(
-        default="unspecified",
-        description="Optional gender field (limited values).",
-        examples=["female"],
-    )
+    next_letter_index: int = Field(default=0, ge=0, description="Next letter index to record.")
+    next_repeat_index: int = Field(default=0, ge=0, description="Next repeat index for the current letter.")
+    completed_recordings: int = Field(default=0, ge=0, description="How many recordings completed in this runtime.")
+    last_success_at: Optional[datetime] = Field(default=None, description="Last successful operation timestamp (UTC).")
 
 
-class SessionCreateResponse(BaseModel):
+class SessionRuntimeCreateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    session_id: str = Field(..., description="Anonymous session identifier (UUID).")
-    age_years: int = Field(..., ge=0, le=10, description="Completed years.")
-    age_months: int = Field(..., ge=0, le=11, description="Remaining months (0-11).")
-    total_months: int = Field(..., ge=0, le=120, description="Total age in months.")
-    gender: Gender
-    created_at: datetime
-    status: Literal["active"] = "active"
+    session_id: str = Field(..., min_length=8, description="Persistent research session_id reference (UUID).")
+    ttl_seconds: Optional[int] = Field(
+        default=None,
+        ge=60,
+        le=60 * 60 * 24,
+        description="Optional TTL override (60s..86400s). If omitted, server default is used.",
+    )
+
+
+class SessionRuntimeCreateResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    runtime_token: str = Field(..., description="Temporary runtime token (UUID).")
+    session_id: str = Field(..., description="Persistent research session_id reference (UUID).")
+    created_at: datetime = Field(..., description="UTC timestamp when runtime token created.")
+    expires_at: datetime = Field(..., description="UTC timestamp when runtime token expires (TTL).")
+    progress: SessionRuntimeProgress

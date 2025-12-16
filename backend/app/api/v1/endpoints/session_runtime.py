@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.v1.schemas.session import (
+from app.api.v1.schemas.session_runtime import (
     SessionRuntimeCreateRequest,
     SessionRuntimeCreateResponse,
     SessionRuntimeProgress,
 )
 from app.db.mongodb import get_database
-from app.db.repositories.session import SessionRuntimeRepository
-from app.services.session import SessionRuntimeService
+from app.db.repositories.session_runtime import SessionRuntimeRepository
+from app.services.session_runtime import SessionRuntimeService
 
 router = APIRouter()
 

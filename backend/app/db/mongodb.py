@@ -10,6 +10,7 @@ import logging
 from typing import Any, Optional, Protocol
 
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import ASCENDING, DESCENDING  # ✅ NEW
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -97,3 +98,40 @@ db_manager = DatabaseManager()
 async def get_database() -> _MongoDatabase:
     """FastAPI dependency to obtain DB handle."""
     return db_manager.get_database()
+
+
+# ✅ NEW: Index bootstrap (called from lifespan)
+async def ensure_indexes(db: _MongoDatabase) -> None:
+    """
+    Create/ensure MongoDB indexes. Safe to run repeatedly.
+
+    CRITICAL:
+    - TTL must exist ONLY for session_runtime.expires_at.
+    - sessions collection must remain persistent (NO TTL on sessions in Phase 1).
+    """
+    # sessions: keep only normal indexes here (legacy TTL will be removed in Phase 2)
+    sessions = db["sessions"]
+    await sessions.create_index(
+        [("created_at", DESCENDING)],
+        name="idx_sessions_created_at_desc",
+    )
+
+    # session_runtime: TTL + runtime_token unique + session_id lookup index
+    runtime = db["session_runtime"]
+
+    await runtime.create_index(
+        [("expires_at", ASCENDING)],
+        name="ttl_session_runtime_expires_at",
+        expireAfterSeconds=0,
+    )
+
+    await runtime.create_index(
+        [("runtime_token", ASCENDING)],
+        name="uq_session_runtime_runtime_token",
+        unique=True,
+    )
+
+    await runtime.create_index(
+        [("session_id", ASCENDING)],
+        name="idx_session_runtime_session_id",
+    )

@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-from typing import Optional, Any, Dict
+from typing import Any, Dict, Optional
 
-from app.db.repositories.session import SessionRuntimeRepository
+from app.db.repositories.session_runtime import SessionRuntimeRepository
 
 
 class SessionRuntimeService:
-    """
-    Service layer for session runtime operations.
-    """
-
     def __init__(self, repo: SessionRuntimeRepository):
         self._repo = repo
 
