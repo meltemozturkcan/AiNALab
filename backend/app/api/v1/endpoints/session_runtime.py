@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.v1.schemas.session_runtime import (
+from app.schemas.session_runtime import (
     SessionRuntimeCreateRequest,
     SessionRuntimeCreateResponse,
     SessionRuntimeProgress,
