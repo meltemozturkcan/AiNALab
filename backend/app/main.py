@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from app.db.indexes import ensure_indexes
 from app.db.mongodb import db_manager
-from app.api.v1.endpoints import health, sessions, session_runtime
+from app.api.v1.endpoints import health, sessions, session_runtime ,_schema_test
 
 
 @asynccontextmanager
@@ -32,6 +32,7 @@ app = FastAPI(
 app.include_router(health.router, prefix="/api/v1", tags=["health"])
 app.include_router(sessions.router, prefix="/api/v1", tags=["sessions"])
 app.include_router(session_runtime.router, prefix="/api/v1", tags=["session-runtime"])
+app.include_router(_schema_test.router, prefix="/api/v1", tags=["schema-test"])
 
 
 @app.get("/")
